@@ -1,12 +1,16 @@
 from discord.ext import commands
 import requests
+import json
+import os
 
 
 class TeamCog(commands.Cog):
 
     @commands.command(name='add_team')
     async def add_team(self, ctx: commands.Context, teamname: str):
-        reponse = requests.post("http://localhost:8080/add_team", teamname)
+        data = json.dumps({"name": teamname})
+        response = requests.post(f"http://{os.getenv('BACKEND_HOST_IP')}:{os.getenv('BACKEND_HOST_PORT')}/add_team", data)
+        print(response)
         await ctx.send(f'Team "{teamname}" added!')
 
     @commands.command(name='remove_team')
