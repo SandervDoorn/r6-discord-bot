@@ -8,7 +8,7 @@ class Team(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(length=50), unique=True)
-    players = relationship("Player")
+    players = relationship("Player", back_populates='team')
 
     def __init__(self, name):
         self.name = name

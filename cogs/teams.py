@@ -1,6 +1,5 @@
 from discord.ext import commands
 from discord.ext.commands.errors import CommandInvokeError
-from sqlalchemy.orm.exc import NoResultFound
 
 from database.base import session_factory
 from models.team import Team

@@ -2,10 +2,11 @@ import os
 
 import discord as discord
 from discord.ext import commands
-from database.base import session_factory
 from dotenv import load_dotenv
 
 from cogs import teams
+from cogs import players
+from cogs import invites
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -22,6 +23,10 @@ async def on_ready():
 
     print("=> Team commands")
     bot.add_cog(teams.TeamCog(bot))
+    print("=> Player commands")
+    bot.add_cog(players.PlayerCog(bot))
+    print("=> Invite commands")
+    bot.add_cog(invites.InviteCog(bot))
 
     print("Done!")
     print("\n")
