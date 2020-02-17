@@ -2,20 +2,20 @@ import os
 
 import discord as discord
 from discord.ext import commands
+from database.base import session_factory
 from dotenv import load_dotenv
 
 from cogs import teams
 
 load_dotenv()
-
 TOKEN = os.getenv('DISCORD_TOKEN')
-GUILD = os.getenv('DISCORD_GUILD')
 
 bot = commands.Bot(command_prefix='!')
 
 
 @bot.event
 async def on_ready():
+
     # ###################################
     # Load commands
     print("# Loading commands")
@@ -52,4 +52,3 @@ async def on_guild_join(guild: discord.Guild):
 
 
 bot.run(TOKEN)
-
