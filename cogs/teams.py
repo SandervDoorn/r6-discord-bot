@@ -5,7 +5,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from database.base import session_factory
 from errors.exceptions import NotAllowedError
 from models.team import Team
-from validation.permissions import is_bot_admin
+from validation.permissions import is_bot_admin, is_registered
 from utils.utils import team_stats_string
 
 
