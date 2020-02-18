@@ -6,6 +6,7 @@ from database.base import session_factory
 from errors.exceptions import NotAllowedError
 from models.team import Team
 from validation.permissions import is_bot_admin
+from utils.utils import team_stats_string
 
 
 class TeamCog(commands.Cog):
@@ -47,6 +48,12 @@ class TeamCog(commands.Cog):
         session.commit()
         session.close()
         await ctx.send(f'Team "{from_name}" has been renamed to: "{to_name}"')
+
+    @commands.command("stats")
+    async def stats(self, ctx: commands.Context, teamname: str):
+        session = session_factory()
+        team = session.query(Team).filter_by(name=teamname).one()
+        await ctx.send(team_stats_string(team))
 
     # #################################################
     # ERROR HANDLERS
