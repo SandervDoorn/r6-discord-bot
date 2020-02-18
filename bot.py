@@ -4,9 +4,8 @@ import discord as discord
 from discord.ext import commands
 from dotenv import load_dotenv
 
-from cogs import teams
-from cogs import players
-from cogs import invites
+from cogs import *
+from cogs import miscellaneous
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -21,10 +20,12 @@ async def on_ready():
     # Load commands
     print("# Loading commands")
 
+    print("=> Miscellaneous commands")
+    bot.add_cog(miscellaneous.MiscellaneousCog())
     print("=> Team commands")
-    bot.add_cog(teams.TeamCog(bot))
+    bot.add_cog(teams.TeamCog())
     print("=> Player commands")
-    bot.add_cog(players.PlayerCog(bot))
+    bot.add_cog(players.PlayerCog())
     print("=> Invite commands")
     bot.add_cog(invites.InviteCog(bot))
 
