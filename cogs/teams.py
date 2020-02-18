@@ -55,6 +55,28 @@ class TeamCog(commands.Cog):
         team = session.query(Team).filter_by(name=teamname).one()
         await ctx.send(team_stats_string(team))
 
+    @commands.command("teams")
+    async def teams(self, ctx: commands.Context, mode="compact"):
+        session = session_factory()
+        teams = session.query(Team).all()
+        if mode == "compact":
+            string = "> Teams:\n"
+            for team in teams:
+                string = string + f"> - {team.name}\n"
+            await ctx.send(string)
+
+        elif mode == "detailed":
+            string = ""
+            for team in teams:
+                string = string + f"{team_stats_string(team)}\n\n"
+            await ctx.send(string)
+
+        else:
+            await ctx.send(
+                "Invalid mode\n"
+                "Use: !teams [compact|detailed]"
+            )
+
     # #################################################
     # ERROR HANDLERS
     #
