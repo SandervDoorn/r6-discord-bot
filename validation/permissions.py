@@ -19,6 +19,7 @@ def is_registered():
     async def predicate(ctx: commands.Context):
         session = session_factory()
         players = session.query(Player).all()
+        session.close()
         for player in players:
             if player.discord_id == ctx.author.id:
                 return True
