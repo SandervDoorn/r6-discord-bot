@@ -4,11 +4,6 @@ from models.team import Team
 from errors.exceptions import NotAllowedError
 
 
-# def is_bot_admin(subject: Member):
-#     if 'R6 Bot Manager' in [r.name for r in subject.roles]:
-#         return True
-#     return False
-
 def is_bot_admin():
     async def predicate(ctx: commands.Context):
         if 'R6 Bot Manager' in [r.name for r in ctx.author.roles]:
