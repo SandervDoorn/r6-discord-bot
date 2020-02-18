@@ -1,7 +1,8 @@
 from discord import Member
 from discord.ext import commands
-from models.team import Team
+
 from errors.exceptions import NotAllowedError
+from models.team import Team
 
 
 def is_bot_admin():

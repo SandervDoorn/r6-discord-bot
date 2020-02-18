@@ -1,12 +1,17 @@
 from discord.ext.commands import CommandError
 
-class TeamAlreadyExistsError(Exception):
+
+class TeamAlreadyExistsError(CommandError):
     pass
 
 
-class TeamAlreadyCaptainizedError(Exception):
+class TeamAlreadyCaptainizedError(CommandError):
     pass
 
 
 class NotAllowedError(CommandError):
+    pass
+
+
+class PlayerAlreadyInTeamError(CommandError):
     pass
