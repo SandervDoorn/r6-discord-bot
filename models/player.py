@@ -11,7 +11,7 @@ class Player(Base):
     name = Column(String(length=50))
     discriminator = Column(Integer)
     discord_id = Column(BigInteger, unique=True)
-    team_id = Column(Integer, ForeignKey('teams.id'))
+    team_id = Column(Integer, ForeignKey('teams.id', ondelete="SET NULL"))
     team = relationship('Team', back_populates='players')
 
     def __init__(self, name, discriminator, discord_id):

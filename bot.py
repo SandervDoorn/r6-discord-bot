@@ -3,6 +3,7 @@ import os
 import discord as discord
 from discord.ext import commands
 from dotenv import load_dotenv
+from database.base import session_factory
 
 from cogs import *
 from cogs import miscellaneous
@@ -31,9 +32,16 @@ async def on_ready():
     bot.add_cog(invites.InviteCog(bot))
     print("=> Error handler")
     bot.add_cog(errorhandler.ErrorCog())
-
     print("Done!")
     print("\n")
+
+    print("# Initializing database")
+    session = session_factory()
+    session.commit()
+    session.close()
+    print("Done!")
+    print("\n")
+
     # ###################################
 
 

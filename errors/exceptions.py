@@ -15,3 +15,6 @@ class NotAllowedError(CommandError):
 
 class PlayerAlreadyInTeamError(CommandError):
     pass
+
+class UserNotRegisteredError(CommandError):
+    pass

@@ -21,12 +21,10 @@ class PlayerCog(commands.Cog):
 
         await ctx.author.send(
             f"Thank you for registering {ctx.author.name}!\n"
-            "You now have access to joining teams! If you want to start a new team please ask one of the moderators.\n"
             "You can always unregister by using the command !unregister\n\n"
 
+            "You now have access to joining teams! If you want to start a new team please ask one of the moderators.\n"
             "If you want to join an existing team, ask your team captain to invite you!\n"
-            f"Your captain will need your discord id for this: {ctx.author.id}\n"
-            "Should you forget your id, you can always retrieve it using !my_id"
         )
 
     @commands.command("unregister")

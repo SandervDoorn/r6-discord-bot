@@ -6,7 +6,7 @@ from database.base import session_factory
 from models.player import Player
 from models.team import Team
 from validation.permissions import is_bot_admin
-from errors.exceptions import NotAllowedError, TeamAlreadyCaptainizedError, PlayerAlreadyInTeamError
+from errors.exceptions import *
 
 
 class InviteCog(commands.Cog):
@@ -17,17 +17,10 @@ class InviteCog(commands.Cog):
     # ###############################
     # Invite and promote commands
     #
-    @commands.command("add_captain")
+    @commands.command("set_captain")
     @is_bot_admin()
-    async def add_captain(self, ctx: commands.Context, teamname: str):
-        channel: DMChannel = await ctx.author.create_dm()
-        await channel.send(f'Please provide the id of a user to assign him/her captain rank for team {teamname}')
-
-        def check(m):
-            return m.channel == channel
-
-        response = await self.bot.wait_for('message', timeout=30, check=check)
-        id = response.content
+    async def set_captain(self, ctx: commands.Context, teamname: str, player_mention):
+        p = ctx.message.mentions[0]
 
         # Check if user exists and is not yet part of team
         session = session_factory()
@@ -35,7 +28,11 @@ class InviteCog(commands.Cog):
         if team.captain is not None:
             raise TeamAlreadyCaptainizedError
 
-        player = session.query(Player).filter_by(discord_id=id).one()
+        try:
+            player = session.query(Player).filter_by(discord_id=p.id).one()
+        except NoResultFound:
+            raise UserNotRegisteredError
+
         if player.team is not None:
             raise PlayerAlreadyInTeamError
 
@@ -47,7 +44,7 @@ class InviteCog(commands.Cog):
 
         session.commit()
         session.close()
-        await channel.send(f"Captain role successfully assigned to player {player.name}")
+        await ctx.send(f"Captain role successfully assigned to player {player.name}")
 
     @commands.command("remove_captain")
     async def remove_captain(self, ctx: commands.Context, teamname: str):
@@ -61,21 +58,24 @@ class InviteCog(commands.Cog):
     # ###############################
     # Error handlers
     #
-    @add_captain.error
-    async def add_captain_error(self, ctx: commands.Context, error):
+    @set_captain.error
+    async def set_captain_error(self, ctx: commands.Context, error):
         err = getattr(error, 'original', error)
 
         if isinstance(err, NotAllowedError):
-            await ctx.author.send("You do not have permissions to use that command!")
+            await ctx.send("You do not have permissions to use that command!")
 
         elif isinstance(err, NoResultFound):
-            await ctx.send("That team or player does not exist!")
+            await ctx.send("That team does not exist!")
+
+        elif isinstance(err, UserNotRegisteredError):
+            await ctx.send("That player is not yet registered")
 
         elif isinstance(err, TeamAlreadyCaptainizedError):
-            await ctx.author.send("Team already has a captain!")
+            await ctx.send("Team already has a captain!")
 
         elif isinstance(err, PlayerAlreadyInTeamError):
-            await ctx.author.send("That player is already in a team!")
+            await ctx.send("That player is already in a team!")
 
     @remove_captain.error
     async def remove_captain_error(self, ctx: commands.Context, error):

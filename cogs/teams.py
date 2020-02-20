@@ -1,13 +1,13 @@
-from discord.ext import commands
 from discord.embeds import Embed
+from discord.ext import commands
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 
 from database.base import session_factory
 from errors.exceptions import NotAllowedError
 from models.team import Team
-from validation.permissions import is_bot_admin, is_registered
 from utils.utils import create_team_embed
+from validation.permissions import is_bot_admin
 
 
 class TeamCog(commands.Cog):
@@ -95,6 +95,7 @@ class TeamCog(commands.Cog):
         elif isinstance(err, NoResultFound):
             await ctx.send("That team does not exist!")
         else:
+            print(err)
             await ctx.send("You broke the bot!")
 
     @add_team.error
