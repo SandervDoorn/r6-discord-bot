@@ -22,7 +22,11 @@ class InviteCog(commands.Cog):
         p = ctx.message.mentions[0]
 
         session = session_factory()
-        team = session.query(Team).filter_by(name=teamname).one()
+        try:
+            team = session.query(Team).filter_by(name=teamname).one()
+        except NoResultFound:
+            raise TeamDoesNotExistError
+
         if team.captain is not None:
             raise TeamAlreadyCaptainizedError
 
@@ -47,7 +51,11 @@ class InviteCog(commands.Cog):
     @commands.command("remove_captain")
     async def remove_captain(self, ctx: commands.Context, teamname: str):
         session = session_factory()
-        team = session.query(Team).filter_by(name=teamname).one()
+        try:
+            team = session.query(Team).filter_by(name=teamname).one()
+        except NoResultFound:
+            raise TeamDoesNotExistError
+
         team.captain = None
         session.commit()
         session.close()
@@ -74,39 +82,3 @@ class InviteCog(commands.Cog):
         session.close()
 
         await ctx.send(f"{p.name} is now a member of team {team.name}")
-
-    # ###############################
-    # Error handlers
-    #
-    @set_captain.error
-    async def set_captain_error(self, ctx: commands.Context, error):
-        err = getattr(error, 'original', error)
-
-        if isinstance(err, NotAllowedError):
-            await ctx.send("You do not have permissions to use that command!")
-
-        elif isinstance(err, NoResultFound):
-            await ctx.send("That team does not exist!")
-
-        elif isinstance(err, UserNotRegisteredError):
-            await ctx.send("That player is not yet registered")
-
-        elif isinstance(err, TeamAlreadyCaptainizedError):
-            await ctx.send("Team already has a captain!")
-
-        elif isinstance(err, PlayerAlreadyInTeamError):
-            await ctx.send("That player is already in a team!")
-
-    @remove_captain.error
-    async def remove_captain_error(self, ctx: commands.Context, error):
-        err = getattr(error, 'original', error)
-
-        if isinstance(err, NoResultFound):
-            await ctx.send("That team does not exist!")
-
-    @invite.error
-    async def invite_error(self, ctx: commands.Context, error):
-        err = getattr(error, 'original', error)
-
-        if isinstance(err, NotCaptainOfTeamError):
-            await ctx.send("You are not the captain of a team!")
