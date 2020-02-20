@@ -18,3 +18,6 @@ class PlayerAlreadyInTeamError(CommandError):
 
 class UserNotRegisteredError(CommandError):
     pass
+
+class NotCaptainOfTeamError(CommandError):
+    pass

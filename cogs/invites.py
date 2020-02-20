@@ -53,6 +53,28 @@ class InviteCog(commands.Cog):
         session.close()
         await ctx.send(f'The captain of team {teamname} has been removed')
 
+    @commands.command("invite")
+    async def invite(self, ctx: commands.Context, player_mention):
+        p = ctx.message.mentions[0]
+
+        session = session_factory()
+
+        try:
+            team = session.query(Team).filter_by(captain_id=ctx.author.id).one()
+        except NoResultFound:
+            raise NotCaptainOfTeamError
+
+        try:
+            player = session.query(Player).filter_by(discord_id=p.id).one()
+        except NoResultFound:
+            raise UserNotRegisteredError
+
+        team.players.append(player)
+        session.commit()
+        session.close()
+
+        await ctx.send(f"{p.name} is now a member of team {team.name}")
+
     # ###############################
     # Error handlers
     #
@@ -81,3 +103,10 @@ class InviteCog(commands.Cog):
 
         if isinstance(err, NoResultFound):
             await ctx.send("That team does not exist!")
+
+    @invite.error
+    async def invite_error(self, ctx: commands.Context, error):
+        err = getattr(error, 'original', error)
+
+        if isinstance(err, NotCaptainOfTeamError):
+            await ctx.send("You are not the captain of a team!")
