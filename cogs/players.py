@@ -2,6 +2,7 @@ from discord.ext import commands
 from models.player import Player
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
+from errors.exceptions import UserNotRegisteredError
 
 from database.base import session_factory
 
@@ -36,13 +37,24 @@ class PlayerCog(commands.Cog):
         session.commit()
         session.close()
         member = ctx.guild.get_member(player.discord_id)
-        await member.send("You have succesfully been unregistered! All your data has been removed from our database!")
+        await member.send("You have successfully been unregistered! All your data has been removed from our database!")
 
-    @commands.command("my_id")
-    async def my_id(self, ctx: commands.Context):
+    @commands.command("leave")
+    async def leave(self, ctx: commands.Context):
         session = session_factory()
-        player = session.query(Player).filter_by(discord_id=ctx.author.id).one()
-        await ctx.guild.get_member(player.discord_id).send(f'Your id is: {player.discord_id}')
+
+        try:
+            player = session.query(Player).filter_by(discord_id=ctx.author.id).one()
+        except NoResultFound:
+            raise UserNotRegisteredError
+
+        team = player.team
+        name = team.name
+        team.players.remove(player)
+        session.commit()
+        session.close()
+        await ctx.send(f"You have left team {name}")
+
 
     # ###############################
     # Error handlers
@@ -55,14 +67,6 @@ class PlayerCog(commands.Cog):
             await ctx.send(f'You are not registered yet {ctx.author.name}!')
         else:
             await ctx.send("Something went wrong, I don't know what! You broke me! You ANIMAL!")
-
-    @my_id.error
-    async def my_id_error(self, ctx: commands.Context, error):
-        err = getattr(error, 'original', error)
-        if isinstance(err, NoResultFound):
-            await ctx.send(f'We do not know you yet {ctx.author.name}! Please register first!')
-        else:
-            await ctx.send("What did you do?! I don't understand! Please contact an admin to save me!")
 
     @register.error
     async def register_error(self, ctx: commands.Context, error):
