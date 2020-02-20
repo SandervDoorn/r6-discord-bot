@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 
 from database.base import session_factory
-from errors.exceptions import NotAllowedError
+from errors.exceptions import *
 from models.team import Team
 from utils.utils import create_team_embed
 from validation.permissions import is_bot_admin
@@ -20,17 +20,24 @@ class TeamCog(commands.Cog):
     async def add_team(self, ctx: commands.Context, teamname: str):
         team = Team(teamname)
         session = session_factory()
-        session.add(team)
-        session.commit()
+        try:
+            session.add(team)
+            session.commit()
+            session.close()
+        except IntegrityError:
+            raise TeamAlreadyExistsError
+
         await ctx.send(f'Team {teamname} added!')
 
     @commands.command(name='remove_team')
     @is_bot_admin()
     async def remove_team(self, ctx: commands.Context, teamname: str):
         session = session_factory()
-        team_query = session.query(Team).filter_by(name=teamname)
-        team_query.one()
-        team_query.delete()
+        try:
+            team = session.query(Team).filter_by(name=teamname).one()
+        except NoResultFound:
+            raise TeamDoesNotExistError
+        team.delete()
         session.commit()
         session.close()
         await ctx.send(f'Team "{teamname}" has been removed')
@@ -39,13 +46,12 @@ class TeamCog(commands.Cog):
     @is_bot_admin()
     async def rename_team(self, ctx: commands.Context, from_name: str, to_name: str):
         session = session_factory()
-        team_query = session.query(Team).filter_by(name=from_name)
+        try:
+            team = session.query(Team).filter_by(name=from_name).one()
+        except NoResultFound:
+            raise TeamDoesNotExistError
 
-        # Check if team exists in database
-        team_query.one()
-
-        # Update name
-        team_query.update({'name': to_name})
+        team.update({'name': to_name})
         session.commit()
         session.close()
         await ctx.send(f'Team "{from_name}" has been renamed to: "{to_name}"')
@@ -61,7 +67,7 @@ class TeamCog(commands.Cog):
     async def teams(self, ctx: commands.Context, mode="compact"):
         session = session_factory()
         teams = session.query(Team).all()
-        embed = Embed(title="Rainbow Six Siege")
+        embed = Embed(title="Rainbow Six Siege") # Expand with more games
 
         if mode == "compact":
             teamnames = [team.name for team in teams]
@@ -73,37 +79,3 @@ class TeamCog(commands.Cog):
                 embed.add_field(name=team.name, value="\n".join(players) if len(players) > 0 else "No players")
 
         await ctx.send(embed=embed)
-
-    # #################################################
-    # ERROR HANDLERS
-    #
-    @rename_team.error
-    async def rename_team_error(self, ctx: commands.Context, error):
-        err = getattr(error, 'original', error)
-
-        if isinstance(err, NoResultFound):
-            await ctx.send("That team does not exist!")
-        elif isinstance(err, NotAllowedError):
-            await ctx.send("You are not allowed to do that!")
-
-    @remove_team.error
-    async def remove_team_error(self, ctx: commands.Context, error):
-        err = getattr(error, 'original', error)
-
-        if isinstance(err, NotAllowedError):
-            await ctx.send("You are not allowed to remove teams!")
-        elif isinstance(err, NoResultFound):
-            await ctx.send("That team does not exist!")
-        else:
-            print(err)
-            await ctx.send("You broke the bot!")
-
-    @add_team.error
-    async def add_team_error(self, ctx: commands.Context, error):
-        err = getattr(error, 'original', error)
-        if isinstance(err, IntegrityError):
-            await ctx.send("Team already exists")
-        elif isinstance(err, NotAllowedError):
-            await ctx.send("You are not allowed to add teams!")
-        else:
-            await ctx.send("Something else went wrong!")
