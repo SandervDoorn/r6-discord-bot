@@ -1,4 +1,5 @@
 from discord.ext import commands
+from discord.embeds import Embed
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -6,7 +7,7 @@ from database.base import session_factory
 from errors.exceptions import NotAllowedError
 from models.team import Team
 from validation.permissions import is_bot_admin, is_registered
-from utils.utils import team_stats_string
+from utils.utils import create_team_embed
 
 
 class TeamCog(commands.Cog):
@@ -49,33 +50,29 @@ class TeamCog(commands.Cog):
         session.close()
         await ctx.send(f'Team "{from_name}" has been renamed to: "{to_name}"')
 
-    @commands.command("stats")
+    @commands.command("team")
     async def stats(self, ctx: commands.Context, teamname: str):
+        embed = Embed(title=f"Stats for {teamname}")
         session = session_factory()
         team = session.query(Team).filter_by(name=teamname).one()
-        await ctx.send(team_stats_string(team))
+        await ctx.send(embed=create_team_embed(team, embed))
 
     @commands.command("teams")
     async def teams(self, ctx: commands.Context, mode="compact"):
         session = session_factory()
         teams = session.query(Team).all()
+        embed = Embed(title="Rainbow Six Siege")
+
         if mode == "compact":
-            string = "> Teams:\n"
-            for team in teams:
-                string = string + f"> - {team.name}\n"
-            await ctx.send(string)
+            teamnames = [team.name for team in teams]
+            embed.add_field(name="Teams:", value="\n".join(teamnames))
 
-        elif mode == "detailed":
-            string = ""
+        if mode == "detailed":
             for team in teams:
-                string = string + f"{team_stats_string(team)}\n\n"
-            await ctx.send(string)
+                players = [player.name for player in team.players]
+                embed.add_field(name=team.name, value="\n".join(players) if len(players) > 0 else "No players")
 
-        else:
-            await ctx.send(
-                "Invalid mode\n"
-                "Use: !teams [compact|detailed]"
-            )
+        await ctx.send(embed=embed)
 
     # #################################################
     # ERROR HANDLERS

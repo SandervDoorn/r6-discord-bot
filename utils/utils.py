@@ -1,20 +1,16 @@
 from models.team import Team
 from models.player import Player
 from database.base import session_factory
+from discord.embeds import Embed
 
 
-def team_stats_string(team: Team):
+def create_team_embed(team: Team, embed: Embed):
     captain = get_captainname_from_team(team)
-    players_string = get_players_string(team)
-    return (
-        f"> {team.name}\n"
-        "> \n"
-        "> Captain:\n"
-        f"> - {captain}\n"
-        "> \n"
-        "> Players:\n"
-        f"{players_string}"
-    )
+    embed.add_field(name="Captain", value=captain)
+
+    for player in team.players:
+        embed.add_field(name="Players", value=player.name)
+    return embed
 
 
 def get_captainname_from_team(team: Team):
@@ -24,14 +20,3 @@ def get_captainname_from_team(team: Team):
     captain = session.query(Player).filter_by(discord_id=team.captain).one()
     session.close()
     return captain.name
-
-
-def get_players_string(team: Team):
-    session = session_factory()
-    string = ""
-    for player in team.players:
-        string = string + f"> - {player.name}"
-    session.close()
-    return string
-
-

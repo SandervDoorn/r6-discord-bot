@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 
 from cogs import *
 from cogs import miscellaneous
+from cogs import errorhandler
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -28,6 +29,8 @@ async def on_ready():
     bot.add_cog(players.PlayerCog())
     print("=> Invite commands")
     bot.add_cog(invites.InviteCog(bot))
+    print("=> Error handler")
+    bot.add_cog(errorhandler.ErrorCog())
 
     print("Done!")
     print("\n")
