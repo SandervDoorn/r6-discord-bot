@@ -35,3 +35,6 @@ class ErrorCog(Cog):
 
         if isinstance(err, NotCaptainOfTeamError):
             await ctx.send("You are not the captain of a team!")
+
+        if isinstance(err, UserAlreadyExistsError):
+            await ctx.send("You are already registered!")

@@ -27,3 +27,7 @@ class NotCaptainOfTeamError(CommandError):
 
 class TeamDoesNotExistError(CommandError):
     pass
+
+
+class UserAlreadyExistsError(CommandError):
+    pass
