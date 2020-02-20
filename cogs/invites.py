@@ -68,7 +68,7 @@ class InviteCog(commands.Cog):
         session = session_factory()
 
         try:
-            team = session.query(Team).filter_by(captain_id=ctx.author.id).one()
+            team = session.query(Team).filter_by(captain=ctx.author.id).one()
         except NoResultFound:
             raise NotCaptainOfTeamError
 
@@ -77,8 +77,11 @@ class InviteCog(commands.Cog):
         except NoResultFound:
             raise UserNotRegisteredError
 
+        if player.team is not None:
+            raise PlayerAlreadyInTeamError
+
         team.players.append(player)
+        await ctx.send(f"{p.name} is now a member of team {team.name}")
+
         session.commit()
         session.close()
-
-        await ctx.send(f"{p.name} is now a member of team {team.name}")
