@@ -4,16 +4,16 @@ from database.repository import *
 from database.models import Team
 from utils.utils import create_team_embed
 from discord.embeds import Embed
+from validation.permissions import is_registered, is_guest
 
 
 class UserCommands(commands.Cog):
 
-    # #############################
-    # User commands
-    #
     @commands.command("register")
+    @is_guest()
     async def register(self, ctx: commands.Context):
         add_user(ctx.author)
+        await ctx.send(f"Welcome {ctx.author.name}!")
         await ctx.author.send(
             f"Thank you for registering {ctx.author.name}!\n"
             "You can always unregister by using the command !unregister\n\n"
@@ -23,11 +23,13 @@ class UserCommands(commands.Cog):
         )
 
     @commands.command("unregister")
+    @is_registered()
     async def unregister(self, ctx: commands.Context):
         delete_user(ctx.author)
         await ctx.send("You have successfully been unregistered! All your data has been removed from our database!")
 
     @commands.command("leave")
+    @is_registered()
     async def leave(self, ctx: commands.Context):
         remove_player_from_team(ctx.author)
         await ctx.send(f"You have left your team")
