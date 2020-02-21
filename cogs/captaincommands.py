@@ -34,3 +34,9 @@ class CaptainCommands(commands.Cog):
         else:
             raise UserNotInTeamError
         await ctx.message(f"{p.name} has been kicked from the team!")
+
+    @commands.command("logo")
+    @is_captain()
+    async def logo(self, ctx: commands.Context):
+        # TODO: Add image support
+        pic = ctx.message.attachments
