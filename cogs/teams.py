@@ -2,8 +2,7 @@ from discord.embeds import Embed
 from discord.ext import commands
 
 from database.repository import *
-from errors.exceptions import *
-from models.team import Team
+from database.models import Team
 from utils.utils import create_team_embed
 from validation.permissions import is_bot_admin
 

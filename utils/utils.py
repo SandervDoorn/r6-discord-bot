@@ -1,5 +1,4 @@
-from models.team import Team
-from models.player import Player
+from database.models import Player, Team
 from database.base import session_factory
 from discord.embeds import Embed
 

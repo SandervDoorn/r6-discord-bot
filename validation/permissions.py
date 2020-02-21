@@ -2,8 +2,7 @@ from discord import Member
 from discord.ext import commands
 
 from errors.exceptions import NotAllowedError
-from models.team import Team
-from models.player import Player
+from database.models import Player, Team
 from database.base import session_factory
 
 

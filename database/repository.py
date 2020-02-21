@@ -3,8 +3,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from database.base import session_factory
 from errors.exceptions import *
-from models.player import Player
-from models.team import Team
+from database.models import *
 
 
 def remove_player_from_team(player):
