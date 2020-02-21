@@ -2,7 +2,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm.exc import NoResultFound
 
 from database.base import session_factory
-from errors.exceptions import UserNotRegisteredError, TeamDoesNotExistError, UserAlreadyExistsError
+from errors.exceptions import *
 from models.player import Player
 from models.team import Team
 
@@ -13,6 +13,34 @@ def remove_player_from_team(player):
     if p.team.captain == p.discord_id:
         p.team.captain = None
     p.team.players.remove(p)
+    session.commit()
+    session.close()
+
+
+def add_team(teamname):
+    t = Team(teamname)
+    session = session_factory()
+    try:
+        session.add(t)
+        session.commit()
+    except IntegrityError:
+        raise TeamAlreadyExistsError
+    finally:
+        session.close()
+
+
+def delete_team(teamname):
+    session = session_factory()
+    t = find_team_by_name(teamname, session)
+    session.delete(t)
+    session.commit()
+    session.close()
+
+
+def rename_team(from_, to_):
+    session = session_factory()
+    t = find_team_by_name(from_, session)
+    t.name = to_
     session.commit()
     session.close()
 
@@ -37,7 +65,7 @@ def delete_user(player):
     session.close()
 
 
-def __find_team_by_name(teamname, session):
+def find_team_by_name(teamname, session):
     try:
         team = session.query(Team).filter_by(name=teamname).one()
     except NoResultFound:

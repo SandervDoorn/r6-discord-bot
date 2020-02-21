@@ -4,12 +4,16 @@ from database.base import session_factory
 from discord.embeds import Embed
 
 
-def create_team_embed(team: Team, embed: Embed):
+def create_team_embed(team: Team):
+    embed = Embed(title="Team: " + team.name)
     captain = get_captainname_from_team(team)
     embed.add_field(name="Captain", value=captain)
 
-    for player in team.players:
-        embed.add_field(name="Players", value=player.name)
+    if len(team.players) > 0:
+        for player in team.players:
+            embed.add_field(name="Players", value=player.name)
+    else:
+        embed.add_field(name="Players", value="None")
     return embed
 
 

@@ -3,10 +3,10 @@ from discord.ext import commands
 from database.repository import *
 
 
-class PlayerCog(commands.Cog):
+class UserCommands(commands.Cog):
 
     # #############################
-    # Player commands
+    # User commands
     #
     @commands.command("register")
     async def register(self, ctx: commands.Context):

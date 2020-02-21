@@ -26,7 +26,7 @@ async def on_ready():
     print("=> Team commands")
     bot.add_cog(teams.TeamCog())
     print("=> Player commands")
-    bot.add_cog(players.PlayerCog())
+    bot.add_cog(players.UserCommands())
     print("=> Invite commands")
     bot.add_cog(invites.InviteCog(bot))
     print("=> Error handler")

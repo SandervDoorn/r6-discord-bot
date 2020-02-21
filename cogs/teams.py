@@ -1,9 +1,7 @@
 from discord.embeds import Embed
 from discord.ext import commands
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm.exc import NoResultFound
 
-from database.base import session_factory
+from database.repository import *
 from errors.exceptions import *
 from models.team import Team
 from utils.utils import create_team_embed
@@ -18,50 +16,27 @@ class TeamCog(commands.Cog):
     @commands.command(name='add_team')
     @is_bot_admin()
     async def add_team(self, ctx: commands.Context, teamname: str):
-        team = Team(teamname)
-        session = session_factory()
-        try:
-            session.add(team)
-            session.commit()
-            session.close()
-        except IntegrityError:
-            raise TeamAlreadyExistsError
-
+        add_team(teamname)
         await ctx.send(f'Team {teamname} added!')
 
     @commands.command(name='remove_team')
     @is_bot_admin()
     async def remove_team(self, ctx: commands.Context, teamname: str):
-        session = session_factory()
-        try:
-            team = session.query(Team).filter_by(name=teamname).one()
-        except NoResultFound:
-            raise TeamDoesNotExistError
-        team.delete()
-        session.commit()
-        session.close()
+        delete_team(teamname)
         await ctx.send(f'Team "{teamname}" has been removed')
 
     @commands.command(name='rename_team')
     @is_bot_admin()
     async def rename_team(self, ctx: commands.Context, from_name: str, to_name: str):
-        session = session_factory()
-        try:
-            team = session.query(Team).filter_by(name=from_name).one()
-        except NoResultFound:
-            raise TeamDoesNotExistError
-
-        team.update({'name': to_name})
-        session.commit()
-        session.close()
-        await ctx.send(f'Team "{from_name}" has been renamed to: "{to_name}"')
+        rename_team(from_name, to_name)
+        await ctx.send(f'Team "{from_name}" has been renamed to "{to_name}"')
 
     @commands.command("team")
     async def stats(self, ctx: commands.Context, teamname: str):
-        embed = Embed(title=f"Stats for {teamname}")
         session = session_factory()
-        team = session.query(Team).filter_by(name=teamname).one()
-        await ctx.send(embed=create_team_embed(team, embed))
+        team = find_team_by_name(teamname, session)
+        await ctx.send(embed=create_team_embed(team))
+        session.close()
 
     @commands.command("teams")
     async def teams(self, ctx: commands.Context, mode="compact"):
@@ -77,5 +52,5 @@ class TeamCog(commands.Cog):
             for team in teams:
                 players = [player.name for player in team.players]
                 embed.add_field(name=team.name, value="\n".join(players) if len(players) > 0 else "No players")
-
+        session.close()
         await ctx.send(embed=embed)
