@@ -3,11 +3,11 @@ import os
 import discord as discord
 from discord.ext import commands
 from dotenv import load_dotenv
-from database.base import session_factory
 
 from cogs import *
-from cogs import miscellaneous
 from cogs import errorhandler
+from cogs import miscellaneous
+from database.base import session_factory
 
 load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -17,7 +17,6 @@ bot = commands.Bot(command_prefix='!')
 
 @bot.event
 async def on_ready():
-
     # ###################################
     # Load commands
     print("# Loading commands")
