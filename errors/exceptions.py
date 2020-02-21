@@ -9,7 +9,7 @@ class TeamAlreadyCaptainizedError(CommandError):
     pass
 
 
-class NotAllowedError(CommandError):
+class NotAnAdminError(CommandError):
     pass
 
 

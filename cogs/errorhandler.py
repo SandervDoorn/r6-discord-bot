@@ -19,7 +19,7 @@ class ErrorCog(Cog):
             print(err.param)
             await ctx.send(f"Command '{ctx.command}' requires more parameters!\n")
 
-        elif isinstance(err, NotAllowedError):
+        elif isinstance(err, NotAnAdminError):
             await ctx.send("You do not have permissions to use that command!")
 
         elif isinstance(err, TeamDoesNotExistError):

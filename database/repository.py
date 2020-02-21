@@ -6,14 +6,36 @@ from errors.exceptions import *
 from database.models import *
 
 
+def replace_captain_or_none(team):
+    print(team)
+    if len(team.players) > 0:
+        team.captain = team.players[0].discord_id
+
+
 def remove_player_from_team(player):
     session = session_factory()
     p = find_player_by_discord_id(player.id, session)
+    t = find_team_by_name(p.team.name, session)
     if p.team is None:
         raise UserNotInTeamError
     if p.team.captain == p.discord_id:
         p.team.captain = None
     p.team.players.remove(p)
+    replace_captain_or_none(t)
+    session.commit()
+    session.close()
+
+
+def add_player_to_team(teamname, player):
+    session = session_factory()
+    p = find_player_by_discord_id(player.id, session)
+
+    if p.team is not None:
+        raise PlayerAlreadyInTeamError
+
+    t = find_team_by_name(teamname, session)
+
+    t.players.append(p)
     session.commit()
     session.close()
 

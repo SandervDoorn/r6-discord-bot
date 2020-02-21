@@ -1,9 +1,8 @@
 from discord.ext import commands
-from sqlalchemy.orm.exc import NoResultFound
 
 from database.base import session_factory
-from database.models import Player, Team
-from errors.exceptions import *
+from database.repository import find_player_by_discord_id, add_player_to_team
+from validation.permissions import is_captain
 
 
 class CaptainCommands(commands.Cog):
@@ -12,26 +11,12 @@ class CaptainCommands(commands.Cog):
         self.bot = bot
 
     @commands.command("invite")
+    @is_captain()
     async def invite(self, ctx: commands.Context, player_mention):
         p = ctx.message.mentions[0]
-
         session = session_factory()
-
-        try:
-            team = session.query(Team).filter_by(captain=ctx.author.id).one()
-        except NoResultFound:
-            raise NotCaptainOfTeamError
-
-        try:
-            player = session.query(Player).filter_by(discord_id=p.id).one()
-        except NoResultFound:
-            raise UserNotRegisteredError
-
-        if player.team is not None:
-            raise PlayerAlreadyInTeamError
-
-        team.players.append(player)
-        await ctx.send(f"{p.name} is now a member of team {team.name}")
-
-        session.commit()
+        captain = find_player_by_discord_id(ctx.author.id, session)
+        teamname = captain.team.name
         session.close()
+        add_player_to_team(teamname, p)
+        await ctx.send(f"{p.name} is now part of team {captain.team.name}!")

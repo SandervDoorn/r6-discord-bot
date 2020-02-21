@@ -35,4 +35,4 @@ class Team(Base):
         self.name = name
 
     def __repr__(self):
-        return f'<Team: id={self.id}, name={self.name}, captain={self.captain}>'
+        return f'<Team: id={self.id}, name={self.name}, captain={self.captain}, players={self.players}>'
