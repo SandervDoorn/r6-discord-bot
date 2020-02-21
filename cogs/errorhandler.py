@@ -43,6 +43,9 @@ class ErrorCog(Cog):
         elif isinstance(err, UserNotInTeamError):
             await ctx.send("You are not in a team!")
 
+        elif isinstance(err, InvalidPictureError):
+            await ctx.send("Please use a valid file format: jpg, jpeg, png")
+
 
         else:
             print(error)

@@ -3,7 +3,8 @@ from discord.ext import commands
 from database.base import session_factory
 from database.repository import find_player_by_discord_id, add_player_to_team, find_team_by_name
 from validation.permissions import is_captain
-from errors.exceptions import UserNotInTeamError
+from errors.exceptions import UserNotInTeamError, InvalidPictureError
+from database.models import Team
 
 
 class CaptainCommands(commands.Cog):
@@ -38,5 +39,20 @@ class CaptainCommands(commands.Cog):
     @commands.command("logo")
     @is_captain()
     async def logo(self, ctx: commands.Context):
-        # TODO: Add image support
         pic = ctx.message.attachments
+        if len(pic) > 0 and self.allowed_format(pic):
+            session = session_factory()
+            t = session.query(Team).filter_by(captain=ctx.author.id)
+            t.logo = pic.url
+            session.commit()
+            session.close()
+            await ctx.send("Your logo has been uploaded")
+        else:
+            await ctx.send("Drag and drop a picture in discord and add !logo as comment")
+
+    def allowed_format(self, pic):
+        allowed_ext = ['jpg', 'jpeg', 'png']
+        for ext in allowed_ext:
+            if pic.filename.endswith(ext):
+                return True
+        raise InvalidPictureError

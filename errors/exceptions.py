@@ -35,3 +35,7 @@ class UserAlreadyExistsError(CommandError):
 
 class UserNotInTeamError(CommandError):
     pass
+
+
+class InvalidPictureError(CommandError):
+    pass

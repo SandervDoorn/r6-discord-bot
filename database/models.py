@@ -28,6 +28,7 @@ class Team(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(length=50), unique=True)
+    logo = Column(String(length=250))
     captain = Column(BigInteger)
     players = relationship("Player", back_populates='team')
 
