@@ -31,3 +31,7 @@ class TeamDoesNotExistError(CommandError):
 
 class UserAlreadyExistsError(CommandError):
     pass
+
+
+class UserNotInTeamError(CommandError):
+    pass

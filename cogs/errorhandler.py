@@ -40,6 +40,9 @@ class ErrorCog(Cog):
         elif isinstance(err, UserAlreadyExistsError):
             await ctx.send("You are already registered!")
 
+        elif isinstance(err, UserNotInTeamError):
+            await ctx.send("You are not in a team!")
+
 
         else:
             print(error)

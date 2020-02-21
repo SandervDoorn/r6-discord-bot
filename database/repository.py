@@ -8,7 +8,9 @@ from database.models import *
 
 def remove_player_from_team(player):
     session = session_factory()
-    p = __find_player_by_discord_id(player.id, session)
+    p = find_player_by_discord_id(player.id, session)
+    if p.team is None:
+        raise UserNotInTeamError
     if p.team.captain == p.discord_id:
         p.team.captain = None
     p.team.players.remove(p)
@@ -44,6 +46,23 @@ def rename_team(from_, to_):
     session.close()
 
 
+def promote_player_to_captain(team, player):
+    session = session_factory()
+    t = find_team_by_name(team, session)
+    if t.captain is not None:
+        raise TeamAlreadyCaptainizedError
+
+    p = find_player_by_discord_id(player.id, session)
+
+    if p.team is not None:
+        raise PlayerAlreadyInTeamError
+
+    t.players.append(p)
+    t.captain = p.discord_id
+    session.commit()
+    session.close()
+
+
 def add_user(player):
     p = Player(player.name, player.discriminator, player.id)
     session = session_factory()
@@ -58,7 +77,7 @@ def add_user(player):
 
 def delete_user(player):
     session = session_factory()
-    p = __find_player_by_discord_id(player.id, session)
+    p = find_player_by_discord_id(player.id, session)
     session.delete(p)
     session.commit()
     session.close()
@@ -72,7 +91,7 @@ def find_team_by_name(teamname, session):
     return team
 
 
-def __find_player_by_discord_id(discord_id, session):
+def find_player_by_discord_id(discord_id, session):
     try:
         player = session.query(Player).filter_by(discord_id=discord_id).one()
     except NoResultFound:

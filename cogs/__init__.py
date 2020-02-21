@@ -1,4 +1,4 @@
-import cogs.invites
-import cogs.players
+import cogs.captaincommands
+import cogs.usercommands
 import cogs.miscellaneous
-import cogs.teams
+import cogs.admincommands

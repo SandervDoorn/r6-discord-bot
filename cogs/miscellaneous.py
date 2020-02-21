@@ -1,7 +1,7 @@
 from discord.ext import commands
 
 
-class MiscellaneousCog(commands.Cog):
+class Miscellaneous(commands.Cog):
 
     @commands.command("feedback")
     async def feedback(self, ctx: commands.Context):

@@ -1,34 +1,36 @@
-from discord.embeds import Embed
 from discord.ext import commands
 
 from database.repository import *
 from database.models import Team
 from utils.utils import create_team_embed
-from validation.permissions import is_bot_admin
+from discord.embeds import Embed
 
 
-class TeamCog(commands.Cog):
+class UserCommands(commands.Cog):
 
-    # ###############################
-    # Team commands
+    # #############################
+    # User commands
     #
-    @commands.command(name='add_team')
-    @is_bot_admin()
-    async def add_team(self, ctx: commands.Context, teamname: str):
-        add_team(teamname)
-        await ctx.send(f'Team {teamname} added!')
+    @commands.command("register")
+    async def register(self, ctx: commands.Context):
+        add_user(ctx.author)
+        await ctx.author.send(
+            f"Thank you for registering {ctx.author.name}!\n"
+            "You can always unregister by using the command !unregister\n\n"
 
-    @commands.command(name='remove_team')
-    @is_bot_admin()
-    async def remove_team(self, ctx: commands.Context, teamname: str):
-        delete_team(teamname)
-        await ctx.send(f'Team "{teamname}" has been removed')
+            "You now have access to joining teams! If you want to start a new team please ask one of the moderators.\n"
+            "If you want to join an existing team, ask your team captain to invite you!\n"
+        )
 
-    @commands.command(name='rename_team')
-    @is_bot_admin()
-    async def rename_team(self, ctx: commands.Context, from_name: str, to_name: str):
-        rename_team(from_name, to_name)
-        await ctx.send(f'Team "{from_name}" has been renamed to "{to_name}"')
+    @commands.command("unregister")
+    async def unregister(self, ctx: commands.Context):
+        delete_user(ctx.author)
+        await ctx.send("You have successfully been unregistered! All your data has been removed from our database!")
+
+    @commands.command("leave")
+    async def leave(self, ctx: commands.Context):
+        remove_player_from_team(ctx.author)
+        await ctx.send(f"You have left your team")
 
     @commands.command("team")
     async def stats(self, ctx: commands.Context, teamname: str):
