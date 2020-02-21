@@ -15,9 +15,9 @@ def replace_captain_or_none(team):
 def remove_player_from_team(player):
     session = session_factory()
     p = find_player_by_discord_id(player.id, session)
-    t = find_team_by_name(p.team.name, session)
     if p.team is None:
         raise UserNotInTeamError
+    t = find_team_by_name(p.team.name, session)
     if p.team.captain == p.discord_id:
         p.team.captain = None
     p.team.players.remove(p)

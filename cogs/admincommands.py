@@ -6,9 +6,6 @@ from validation.permissions import is_bot_admin
 
 class AdminCommands(commands.Cog):
 
-    # ###############################
-    # Team commands
-    #
     @commands.command(name='add_team')
     @is_bot_admin()
     async def add_team(self, ctx: commands.Context, teamname: str):
